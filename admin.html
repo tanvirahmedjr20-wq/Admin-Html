@@ -1,0 +1,91 @@
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VYNTORA Admin</title>
+<style>
+body{margin:0;background:#f3f5f9;font-family:Arial,sans-serif;color:#172033}
+header{background:#101828;color:white;padding:20px}
+main{max-width:500px;margin:auto;padding:16px}
+.box{background:white;border-radius:12px;padding:18px;margin-bottom:15px}
+input{display:block;width:100%;box-sizing:border-box;padding:12px;margin:10px 0;border:1px solid #ddd;border-radius:8px}
+button{padding:12px;border:0;border-radius:8px;background:#101828;color:white;cursor:pointer}
+.item{border-bottom:1px solid #eee;padding:12px 0}
+.delete{background:#b42318;margin-top:8px}
+a{color:#175cd3}
+</style>
+</head>
+<body>
+<header>
+<h2>VYNTORA Admin</h2>
+<p>Product Management</p>
+</header>
+<main>
+<div class="box">
+<h3>নতুন পণ্য যোগ করুন</h3>
+<input id="name" placeholder="পণ্যের নাম">
+<input id="price" type="number" placeholder="দাম (৳)">
+<input id="code" placeholder="Product Code">
+<button onclick="addProduct()">পণ্য যোগ করুন</button>
+<p id="msg"></p>
+</div>
+<div class="box">
+<h3>পণ্যের তালিকা</h3>
+<div id="list"></div>
+</div>
+<p><a href="./index.html">← মূল ওয়েবসাইটে ফিরে যাও</a></p>
+</main>
+<script>
+const KEY="vyntoraProducts";
+const defaults=[
+{name:"Smart Watch",price:1250,code:"5731"},
+{name:"Wireless Earbuds",price:950,code:"1002"},
+{name:"Power Bank",price:1849,code:"12712"}
+];
+function load(){
+try{return JSON.parse(localStorage.getItem(KEY))||defaults}
+catch(e){return defaults}
+}
+let products=load();
+function save(){
+localStorage.setItem(KEY,JSON.stringify(products));
+}
+function addProduct(){
+const name=document.getElementById("name").value.trim();
+const price=Number(document.getElementById("price").value);
+const code=document.getElementById("code").value.trim();
+if(!name||!code||!Number.isFinite(price)||price<=0){
+document.getElementById("msg").textContent="সঠিক নাম, দাম ও কোড দিন।";
+return;
+}
+products.push({name,price,code});
+save();show();
+document.getElementById("msg").textContent="পণ্য যোগ হয়েছে!";
+document.getElementById("name").value="";
+document.getElementById("price").value="";
+document.getElementById("code").value="";
+}
+function removeProduct(i){
+if(confirm("পণ্যটি মুছবেন?")){
+products.splice(i,1);save();show();
+}
+}
+function show(){
+document.getElementById("list").innerHTML=products.map((p,i)=>`
+<div class="item">
+<b>${safe(p.name)}</b><br>
+৳${Number(p.price).toLocaleString("en-BD")} · Code: ${safe(p.code)}<br>
+<button class="delete" onclick="removeProduct(${i})">মুছুন</button>
+</div>`).join("")||"এখনো কোনো পণ্য নেই।";
+}
+function safe(s){
+const el=document.createElement("span");
+el.textContent=String(s);
+return el.innerHTML;
+}
+show();
+</script>
+</body>
+</html>
